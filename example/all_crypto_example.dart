@@ -3,15 +3,30 @@ import 'dart:convert';
 import 'package:all_crypto/all_crypto.dart';
 
 void main() {
-  // Formato recomendado: a chave nunca é serializada.
-  final key = AllCrypto.generateKey(); // guarde em local seguro
-  final envelope = AllCrypto.encryptText('mensagem confidencial', key: key);
+  // A chave deve vir de um keychain, KMS ou cofre externo.
+  final key = AllCrypto.generateKey();
+  final aad = utf8.encode('tenant:demo|record:42|schema:1');
+  final envelope = AllCrypto.encryptText(
+    'mensagem confidencial',
+    key: key,
+    aad: aad,
+  );
 
-  final b64 = envelope.toBase64(); // não contém a chave
-  final restored = CryptEnvelope.fromBase64(b64);
+  // O token transporta algoritmo, nonce, tag e AAD, nunca a chave.
+  final token = envelope.toBase64();
+  final restored = CryptEnvelope.fromBase64(token);
   final decoded = AllCrypto.decryptText(restored, key: key);
 
   final digest = sha256(utf8.encode(decoded));
+  final macKey = AllCrypto.generateKey(); // chave separada para o HMAC
+  final mac = hmacSha256(macKey, utf8.encode(decoded));
+  final authentic = hmacEqual(
+    mac,
+    hmacSha256(macKey, utf8.encode(decoded)),
+  );
 
-  print('Round-trip concluído; SHA-256 bytes: ${digest.length}');
+  // Não imprima chave, plaintext ou envelope completo em produção.
+  print(
+    'Round-trip autenticado: $authentic; SHA-256 bytes: ${digest.length}',
+  );
 }

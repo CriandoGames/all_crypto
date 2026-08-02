@@ -1,5 +1,5 @@
 name: all_crypto
-description: Pure Dart cryptography utilities with ChaCha20-Poly1305, AES modes, SHA-256, HMAC-SHA256, and versioned payloads.
+description: Authenticated encryption in pure Dart with versioned envelopes that never serialize keys, ChaCha20-Poly1305, AES-GCM, SHA-256, and HMAC.
 version: 1.0.0
 homepage: https://github.com/CriandoGames/all_crypto
 repository: https://github.com/CriandoGames/all_crypto
