@@ -56,7 +56,7 @@ compatibility with existing integrations.
 
 ```yaml
 dependencies:
-  all_crypto: ^1.0.0
+  all_crypto: ^1.0.1
 ```
 
 ```dart

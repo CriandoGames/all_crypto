@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Documentação aprimorada com exemplos de uso mais completos.
+
 ## 1.0.0
 
 - Primeira versão pública.
