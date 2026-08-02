@@ -1,40 +1,63 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:all_crypto/all_crypto.dart';
 import 'package:test/test.dart';
 
+import '../../example/all_crypto_example.dart' as example;
+
 void main() {
-  test('exemplo principal (README) faz round-trip com CryptEnvelope', () {
-    final key = AllCrypto.generateKey();
-    final envelope = AllCrypto.encryptText('segredo', key: key);
+  group('exemplo executável', () {
+    test('protege e restaura um registro com chave externa e AAD', () {
+      final key = AllCrypto.generateKey();
+      final token = example.protectCustomerRecord(key);
+      final envelope = CryptEnvelope.fromBase64(token);
+      final record = example.restoreCustomerRecord(token, key);
 
-    final b64 = envelope.toBase64();
-    expect(b64.contains(String.fromCharCodes(key)), isFalse);
+      expect(record, containsPair('id', 42));
+      expect(record, containsPair('plan', 'pro'));
+      expect(utf8.decode(envelope.aad), contains('collection:customers'));
+      expect(envelope.toJson(), isNot(contains('key')));
+    });
 
-    final restored = CryptEnvelope.fromBase64(b64);
-    expect(AllCrypto.decryptText(restored, key: key), 'segredo');
-  });
+    test('interopera com AES-GCM usando envelope serializado', () {
+      final key = AllCrypto.generateKey();
+      final token = example.protectOrderWithAesGcm(key);
+      final envelope = CryptEnvelope.fromBase64(token);
 
-  test('exemplo executável (example/all_crypto_example.dart) usa AllCrypto',
-      () {
-    final key = AllCrypto.generateKey();
-    final aad = utf8.encode('tenant:demo|record:42|schema:1');
-    final envelope = AllCrypto.encryptText(
-      'mensagem confidencial',
-      key: key,
-      aad: aad,
-    );
-    final b64 = envelope.toBase64();
-    final restored = CryptEnvelope.fromBase64(b64);
-    final decoded = AllCrypto.decryptText(restored, key: key);
+      expect(envelope.algorithm, CryptAlgorithm.aesGcm);
+      expect(example.restoreOrder(token, key), containsPair('status', 'paid'));
+    });
 
-    final digest = sha256(utf8.encode(decoded));
-    final macKey = AllCrypto.generateKey();
-    final mac = hmacSha256(macKey, utf8.encode(decoded));
+    test('protege conteúdo binário sem alterar os bytes', () {
+      final key = AllCrypto.generateKey();
+      final original = Uint8List.fromList([0, 1, 2, 127, 128, 254, 255]);
 
-    expect(decoded, 'mensagem confidencial');
-    expect(restored.aad, aad);
-    expect(digest, hasLength(32));
-    expect(hmacEqual(mac, hmacSha256(macKey, utf8.encode(decoded))), isTrue);
+      final token = example.protectAttachment(original, key);
+      final restored = example.restoreAttachment(token, key);
+
+      expect(restored, orderedEquals(original));
+      expect(example.trustedContentDigest(restored), hasLength(32));
+    });
+
+    test('HMAC aceita mensagem original e rejeita mensagem alterada', () {
+      final key = AllCrypto.generateKey();
+      final body = utf8.encode('{"event":"invoice.paid"}');
+      final signature = example.signWebhook(body, key);
+
+      expect(example.verifyWebhook(body, signature, key), isTrue);
+      expect(
+        example.verifyWebhook(
+            utf8.encode('{"event":"invoice.refunded"}'), signature, key),
+        isFalse,
+      );
+    });
+
+    test('AEAD rejeita ciphertext adulterado', () {
+      final key = AllCrypto.generateKey();
+      final token = example.protectCustomerRecord(key);
+
+      expect(example.rejectsTamperedToken(token, key), isTrue);
+    });
   });
 }

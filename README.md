@@ -92,6 +92,8 @@ verificação AEAD falhar. Não coloque informações sensíveis no AAD.
 ### Interoperabilidade com AES-GCM
 
 ```dart
+final aesKey = AllCrypto.generateKey();
+final order = {'id': 'order_42', 'totalInCents': 15990};
 final envelope = AllCrypto.encryptText(
   jsonEncode(order),
   key: aesKey,
@@ -99,7 +101,7 @@ final envelope = AllCrypto.encryptText(
   aad: utf8.encode('orders:v1'),
 );
 
-await repository.save(envelope.toJson());
+final token = envelope.toBase64();
 ```
 
 O sistema que consumir o payload precisa compartilhar exatamente o protocolo:
@@ -130,8 +132,26 @@ SHA-256 detecta alteração acidental quando o digest esperado vem de uma fonte
 confiável. HMAC-SHA256 comprova conhecimento da chave compartilhada; compare
 tags com `hmacEqual`.
 
-O mesmo snippet existe em [example/all_crypto_example.dart](https://github.com/CriandoGames/all_crypto/blob/main/example/all_crypto_example.dart)
-e é coberto por `test/documentation/`.
+## Exemplo completo
+
+O [exemplo executável](https://github.com/CriandoGames/all_crypto/blob/main/example/all_crypto_example.dart) reúne fluxos que podem
+ser adaptados diretamente para uma aplicação:
+
+- registro JSON protegido com chave externa e AAD;
+- interoperabilidade com AES-GCM;
+- conteúdo binário, como anexos e arquivos;
+- digest SHA-256 para comparação com uma fonte confiável;
+- assinatura e verificação de webhook com HMAC-SHA256;
+- rejeição de ciphertext adulterado pela autenticação AEAD.
+
+Execute com:
+
+```bash
+dart run example/all_crypto_example.dart
+```
+
+O exemplo imprime somente o resultado das verificações, nunca chaves,
+plaintext ou tokens, e seus cenários são cobertos por `test/documentation/`.
 
 ## Envelope seguro v2
 
