@@ -1,0 +1,7 @@
+.github/
+.dart_tool/
+coverage/
+build/
+doc/api/
+pubspec_overrides.yaml
+*.log

@@ -1,0 +1,3 @@
+# Usage and migration
+
+For new code, use `AllCrypto`/`CryptEnvelope` — see [secure-format.md](secure-format.md). The key is never serialized, and the envelope version is explicitly validated on read. Use `CryptUtil`/`EncryptedPayload` (see [crypt_util.md](crypt_util.md)) only to read historical payloads or when an external system already requires that format; `EncryptedPayload.toJson`/`toBase64` and `CryptUtil.encryptToBase64`/`decryptFromBase64` are `@Deprecated` because they embed the key in the serialized payload. Use `AllCrypto.migrateLegacy` to convert old payloads. Use the `AesGcm`, `AesCbc`, and `AesCtr` classes directly only when a protocol requires explicit control. To migrate from the aggregator, change only the import and retain the same tests/vectors.
