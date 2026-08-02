@@ -18,9 +18,9 @@ import 'crypt_algorithm.dart';
 /// // Decifrar — mesmo payload, qualquer algoritmo
 /// final plain = CryptUtil.decryptAny(payload);
 ///
-/// // Persistir
-/// final b64 = payload.toBase64();
-/// final restored = EncryptedPayload.fromBase64(b64);
+/// // Para persistir ou transmitir, converta para CryptEnvelope e mantenha a
+/// // chave fora do payload. A serialização desta classe é somente legado.
+/// final migrated = AllCrypto.migrateLegacy(payload);
 /// ```
 ///
 /// ## Construção manual (interop com sistemas externos)
@@ -153,9 +153,9 @@ class EncryptedPayload {
     'adicional. Não use para transmitir, persistir fora do dispositivo ou '
     'logar dados. Prefira o envelope sem chave CryptEnvelope, produzido por '
     'AllCrypto.encryptText/encryptBytes (package:all_crypto/all_crypto.dart), '
-    'que exige a chave externamente na decifragem. Mantido sem previsão de '
-    'remoção antes da próxima versão major do pacote, para compatibilidade '
-    'com payloads já emitidos neste formato.',
+    'que exige a chave externamente na decifragem. Remoção planejada para '
+    'all_crypto 2.0.0; mantido até lá para compatibilidade com payloads já '
+    'emitidos neste formato.',
   )
   Map<String, dynamic> toJson() => {
         'algorithm': algorithm.value,
@@ -188,9 +188,9 @@ class EncryptedPayload {
 
   /// Serializa o payload completo como uma **string base64 única**.
   ///
-  /// Internamente, produz JSON → UTF-8 → base64. Ideal para persistir em
-  /// `SharedPreferences`, transmitir em um header HTTP ou armazenar em
-  /// um campo de texto simples.
+  /// Internamente, produz JSON → UTF-8 → base64. Este formato inclui a chave
+  /// e existe somente para compatibilidade com payloads históricos. Não o use
+  /// para novos dados, persistência, transmissão ou logs.
   ///
   /// ```dart
   /// final token = payload.toBase64();
@@ -200,9 +200,9 @@ class EncryptedPayload {
   @Deprecated(
     'Este Base64 embute a chave em texto (via toJson) — quem o obtiver '
     'consegue decifrar o conteúdo. Prefira CryptEnvelope.toBase64 (via '
-    'AllCrypto), que nunca serializa a chave. Mantido sem previsão de '
-    'remoção antes da próxima versão major do pacote, para compatibilidade '
-    'com payloads já emitidos neste formato.',
+    'AllCrypto), que nunca serializa a chave. Remoção planejada para '
+    'all_crypto 2.0.0; mantido até lá para compatibilidade com payloads já '
+    'emitidos neste formato.',
   )
   String toBase64() => base64.encode(utf8.encode(jsonEncode(toJson())));
 

@@ -7,11 +7,11 @@ void main() {
   final key = AllCrypto.generateKey(); // guarde em local seguro
   final envelope = AllCrypto.encryptText('mensagem confidencial', key: key);
 
-  final b64 = envelope.toBase64(); // seguro para persistir, transmitir ou logar
+  final b64 = envelope.toBase64(); // não contém a chave
   final restored = CryptEnvelope.fromBase64(b64);
   final decoded = AllCrypto.decryptText(restored, key: key);
 
   final digest = sha256(utf8.encode(decoded));
 
-  print('Texto: $decoded; SHA-256 bytes: ${digest.length}');
+  print('Round-trip concluído; SHA-256 bytes: ${digest.length}');
 }

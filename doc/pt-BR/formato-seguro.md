@@ -38,7 +38,7 @@ final key = AllCrypto.generateKey();
 // 2. Criptografa — nonce aleatório gerado automaticamente
 final envelope = AllCrypto.encryptText('Dados sensíveis', key: key);
 
-// 3. Serializa (NÃO contém a chave) — seguro para persistir, transmitir ou logar
+// 3. Serializa (NÃO contém a chave). Não registre o payload completo em logs.
 final b64 = envelope.toBase64();
 
 // 4. Depois, com a chave recuperada do cofre externo:

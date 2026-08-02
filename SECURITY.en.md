@@ -10,7 +10,7 @@ Use `AllCrypto.encryptText`/`encryptBytes` to encrypt and `AllCrypto.decryptText
 
 These APIs remain available and still decode historical payloads correctly (they were not removed, nor was the format silently changed), but they are marked `@Deprecated` with a message explaining the issue and pointing to the replacement. **Do not use the legacy format in new code.** Use `AllCrypto.migrateLegacy` to convert an existing `EncryptedPayload` into a `CryptEnvelope` (no key) plus the key extracted separately — and consider rotating the key if the legacy Base64 has already circulated outside trusted storage.
 
-No removal is planned before the package's next major version (semver compatibility policy).
+Removal is planned for `all_crypto` 2.0.0 (semver compatibility policy).
 
 ## Envelope versioning
 

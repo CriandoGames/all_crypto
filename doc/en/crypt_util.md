@@ -1,6 +1,6 @@
 # CryptUtil — Authenticated Encryption (legacy format)
 
-> ⚠️ **This document describes the legacy format** (`EncryptedPayload`, key embedded in the serialized payload). For new code, use `AllCrypto`/`CryptEnvelope` — see [secure-format.md](secure-format.md). `CryptUtil` still works and is the internal base reused by `AllCrypto`, but `EncryptedPayload.toJson()`/`toBase64()` and the `encryptToBase64()`/`decryptFromBase64()` shortcuts are marked `@Deprecated`.
+> ⚠️ **This document describes the legacy format** (`EncryptedPayload`, key embedded in the serialized payload). For new code, use `AllCrypto`/`CryptEnvelope` — see [secure-format.md](secure-format.md). `CryptUtil` still works and is the internal base reused by `AllCrypto`, but `EncryptedPayload.toJson()`/`toBase64()` and the `encryptToBase64()`/`decryptFromBase64()` shortcuts are marked `@Deprecated`, with removal planned for `all_crypto` 2.0.0.
 
 `CryptUtil` implements **ChaCha20-Poly1305** (RFC 8439) in pure Dart, with no external dependencies. The algorithm is AEAD (_Authenticated Encryption with Associated Data_): confidentiality + integrity in a single operation. Any tampering — of the ciphertext, the tag, or the AAD — is automatically detected on decryption.
 

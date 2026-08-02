@@ -88,6 +88,18 @@ void main() {
           throwsA(isA<ArgumentError>()),
         );
       });
+
+      test('construtor rejeita versão desconhecida', () {
+        expect(
+          () => CryptEnvelope(
+            version: 3,
+            algorithm: CryptAlgorithm.chacha20Poly1305,
+            ciphertext: Uint8List(0),
+            nonce: Uint8List(12),
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
     });
 
     // -------------------------------------------------------------------------
@@ -100,6 +112,15 @@ void main() {
         expect(
           () => CryptEnvelope.fromJson(json),
           throwsA(isA<ArgumentError>()),
+        );
+      });
+
+      test('fromJson rejeita algoritmo ausente com FormatException', () {
+        final json = AllCrypto.encryptText('x', key: key).toJson()
+          ..remove('algorithm');
+        expect(
+          () => CryptEnvelope.fromJson(json),
+          throwsA(isA<FormatException>()),
         );
       });
 
@@ -347,18 +368,33 @@ void main() {
         );
       });
 
-      test('JSON interno malformado (não é Map) → erro claro', () {
+      test('JSON interno malformado (não é Map) → FormatException', () {
         final b64 = base64.encode(utf8.encode(jsonEncode([1, 2, 3])));
         expect(
           () => CryptEnvelope.fromBase64(b64),
-          throwsA(anything),
+          throwsA(isA<FormatException>()),
         );
       });
 
-      test('campo ciphertext ausente → erro', () {
+      test('campo ciphertext ausente → FormatException', () {
         final json = AllCrypto.encryptText('x', key: key).toJson()
           ..remove('ciphertext');
-        expect(() => CryptEnvelope.fromJson(json), throwsA(anything));
+        expect(
+          () => CryptEnvelope.fromJson(json),
+          throwsA(isA<FormatException>()),
+        );
+      });
+
+      test('campos binários obrigatórios ausentes → FormatException', () {
+        for (final field in ['nonce', 'tag', 'aad']) {
+          final json = AllCrypto.encryptText('x', key: key).toJson()
+            ..remove(field);
+          expect(
+            () => CryptEnvelope.fromJson(json),
+            throwsA(isA<FormatException>()),
+            reason: field,
+          );
+        }
       });
 
       test('campo ciphertext com base64 inválido → FormatException', () {

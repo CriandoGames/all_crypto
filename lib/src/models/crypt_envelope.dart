@@ -8,7 +8,8 @@ import 'encrypted_payload.dart';
 /// chave.
 ///
 /// Substituto recomendado para [EncryptedPayload.toJson] / [EncryptedPayload.toBase64]
-/// quando o payload for persistido, transmitido ou logado. Use-o através da
+/// quando o payload for persistido ou transmitido segundo o protocolo da
+/// aplicação. Não registre envelopes completos em logs. Use-o através da
 /// fachada `AllCrypto`, que gerencia a chave externamente.
 ///
 /// ## Por que um novo formato
@@ -81,7 +82,14 @@ class CryptEnvelope {
     Uint8List? tag,
     Uint8List? aad,
   })  : tag = tag ?? Uint8List(0),
-        aad = aad ?? Uint8List(0);
+        aad = aad ?? Uint8List(0) {
+    if (version != currentVersion) {
+      throw ArgumentError(
+        'CryptEnvelope: unsupported envelope version $version; '
+        'supported version: $currentVersion.',
+      );
+    }
+  }
 
   /// Serializa para `Map<String, dynamic>`. Nunca inclui chave.
   ///
@@ -121,13 +129,20 @@ class CryptEnvelope {
       );
     }
 
+    final rawAlgorithm = json['algorithm'];
+    if (rawAlgorithm is! String) {
+      throw const FormatException(
+        'CryptEnvelope: missing or invalid "algorithm" field.',
+      );
+    }
+
     return CryptEnvelope(
       version: rawVersion,
-      algorithm: CryptAlgorithm.fromString(json['algorithm'] as String),
-      ciphertext: base64.decode(json['ciphertext'] as String),
-      nonce: base64.decode(json['nonce'] as String),
-      tag: base64.decode(json['tag'] as String),
-      aad: base64.decode(json['aad'] as String),
+      algorithm: CryptAlgorithm.fromString(rawAlgorithm),
+      ciphertext: _decodeBytes(json, 'ciphertext'),
+      nonce: _decodeBytes(json, 'nonce'),
+      tag: _decodeBytes(json, 'tag'),
+      aad: _decodeBytes(json, 'aad'),
     );
   }
 
@@ -142,7 +157,30 @@ class CryptEnvelope {
   /// Lança [ArgumentError] para versão ou algoritmo desconhecidos.
   factory CryptEnvelope.fromBase64(String encoded) {
     final json = jsonDecode(utf8.decode(base64.decode(encoded)));
-    return CryptEnvelope.fromJson(json as Map<String, dynamic>);
+    if (json is! Map<String, dynamic>) {
+      throw const FormatException(
+        'CryptEnvelope: inner JSON must be an object.',
+      );
+    }
+    return CryptEnvelope.fromJson(json);
+  }
+
+  static Uint8List _decodeBytes(Map<String, dynamic> json, String field) {
+    final value = json[field];
+    if (value is! String) {
+      throw FormatException(
+        'CryptEnvelope: missing or invalid "$field" field.',
+      );
+    }
+    try {
+      return base64.decode(value);
+    } on FormatException catch (error) {
+      throw FormatException(
+        'CryptEnvelope: "$field" is not valid Base64.',
+        error.source,
+        error.offset,
+      );
+    }
   }
 
   @override

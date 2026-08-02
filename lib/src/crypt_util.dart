@@ -61,14 +61,6 @@ export 'models/encrypted_payload.dart';
 /// final plain = CryptUtil.decryptAny(payload);
 /// ```
 ///
-/// ## Serialização
-///
-/// ```dart
-/// final encoded  = payload.toBase64();
-/// final restored = EncryptedPayload.fromBase64(encoded);
-/// final texto    = CryptUtil.decryptText(restored);
-/// ```
-///
 /// ## Segurança
 ///
 /// - **Nunca reutilize** o mesmo par (key, nonce/iv) para mensagens diferentes.
@@ -79,9 +71,9 @@ export 'models/encrypted_payload.dart';
 /// ⚠️ **Serialização**: [EncryptedPayload.toJson]/[EncryptedPayload.toBase64]
 /// e os atalhos [encryptToBase64]/[decryptFromBase64] embutem a chave no
 /// formato serializado (comportamento legado, preservado por compatibilidade
-/// — veja `SECURITY.md`). Para persistir, transmitir ou logar dados
-/// cifrados, use a fachada `AllCrypto` com `CryptEnvelope`, que nunca
-/// serializa a chave.
+/// — veja `SECURITY.md`). Para novos dados, use a fachada `AllCrypto` com
+/// `CryptEnvelope`, que nunca serializa a chave. Não registre payloads
+/// criptográficos completos em logs.
 class CryptUtil {
   CryptUtil._();
 
@@ -146,9 +138,9 @@ class CryptUtil {
     'O Base64 resultante embute a chave em texto — quem o obtiver consegue '
     'decifrar o conteúdo, sem nenhuma proteção adicional. Prefira '
     'AllCrypto.encryptText(...).toBase64() (package:all_crypto/all_crypto.dart), '
-    'que produz um CryptEnvelope sem chave. Mantido sem previsão de remoção '
-    'antes da próxima versão major do pacote, para compatibilidade com '
-    'payloads já emitidos neste formato.',
+    'que produz um CryptEnvelope sem chave. Remoção planejada para '
+    'all_crypto 2.0.0; mantido até lá para compatibilidade com payloads já '
+    'emitidos neste formato.',
   )
   static String encryptToBase64(
     String text, {
@@ -167,8 +159,8 @@ class CryptUtil {
     'legado com chave embutida no próprio Base64. Continua funcionando para '
     'ler payloads antigos; em código novo, prefira gerenciar a chave '
     'externamente com AllCrypto.decryptText(CryptEnvelope, key: ...) '
-    '(package:all_crypto/all_crypto.dart). Mantido sem previsão de remoção '
-    'antes da próxima versão major do pacote.',
+    '(package:all_crypto/all_crypto.dart). Remoção planejada para '
+    'all_crypto 2.0.0.',
   )
   static String decryptFromBase64(String encoded) =>
       decryptText(EncryptedPayload.fromBase64(encoded));

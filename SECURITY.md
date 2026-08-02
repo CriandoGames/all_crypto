@@ -10,7 +10,7 @@ Use `AllCrypto.encryptText`/`encryptBytes` para cifrar e `AllCrypto.decryptText`
 
 Essas APIs permanecem disponíveis e continuam decodificando payloads históricos corretamente (não foram removidas nem tiveram o formato alterado silenciosamente), mas estão marcadas `@Deprecated` com uma mensagem explicando o problema e apontando o substituto. **Não use o formato legado em código novo.** Use `AllCrypto.migrateLegacy` para converter um `EncryptedPayload` existente em um `CryptEnvelope` (sem chave) mais a chave extraída separadamente — e considere rotacionar a chave se o Base64 legado já tiver circulado fora de um armazenamento confiável.
 
-Sem previsão de remoção antes da próxima versão major do pacote (política de compatibilidade semver).
+Remoção planejada para `all_crypto` 2.0.0 (política de compatibilidade semver).
 
 ## Versionamento do envelope
 

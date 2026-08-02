@@ -38,7 +38,7 @@ final key = AllCrypto.generateKey();
 // 2. Encrypt — random nonce generated automatically
 final envelope = AllCrypto.encryptText('Sensitive data', key: key);
 
-// 3. Serialize (does NOT contain the key) — safe to persist, transmit, or log
+// 3. Serialize (does NOT contain the key). Do not log complete payloads.
 final b64 = envelope.toBase64();
 
 // 4. Later, with the key retrieved from the external vault:

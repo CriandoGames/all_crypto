@@ -20,7 +20,7 @@ import 'models/crypt_envelope.dart';
 /// ```dart
 /// final key = AllCrypto.generateKey();               // guarde em local seguro
 /// final envelope = AllCrypto.encryptText('segredo', key: key);
-/// final b64 = envelope.toBase64();                   // seguro para persistir/logar
+/// final b64 = envelope.toBase64();                   // não contém a chave
 ///
 /// // ... depois, com a chave recuperada do cofre:
 /// final restored = CryptEnvelope.fromBase64(b64);
