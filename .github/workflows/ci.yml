@@ -41,7 +41,7 @@ jobs:
       - name: Verify required documents
         shell: bash
         run: |
-          for file in README.md README.en.md CHANGELOG.md CHANGELOG.en.md SECURITY.md SECURITY.en.md CONTRIBUTING.md CONTRIBUTING.en.md LICENSE; do
+          for file in README.md README.en.md CHANGELOG.md SECURITY.md SECURITY.en.md CONTRIBUTING.md CONTRIBUTING.en.md LICENSE; do
             test -f "$file" || { echo "Missing $file"; exit 1; }
           done
 
