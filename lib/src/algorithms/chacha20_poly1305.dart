@@ -15,14 +15,28 @@ import 'chacha20.dart';
 /// - Nonce  : 12 bytes
 /// - Tag    : 16 bytes (gerada automaticamente)
 class ChaCha20Poly1305 {
+  /// Tamanho obrigatório da chave, em bytes.
   static const int keyLength = 32;
+
+  /// Tamanho obrigatório do nonce, em bytes.
   static const int nonceLength = 12;
+
+  /// Tamanho da tag de autenticação produzida, em bytes.
   static const int tagLength = 16;
 
+  /// Chave de [keyLength] bytes usada para cifrar e autenticar.
   final Uint8List key;
+
+  /// Nonce de [nonceLength] bytes, que deve ser único para cada mensagem.
   final Uint8List nonce;
+
+  /// Dados adicionais autenticados, preservados em texto claro.
   final Uint8List aad;
 
+  /// Cria uma instância com [key], [nonce] e [aad].
+  ///
+  /// Os tamanhos são validados ao chamar [encrypt] ou [decrypt]. Nunca
+  /// reutilize o mesmo nonce com a mesma chave.
   const ChaCha20Poly1305({
     required this.key,
     required this.nonce,

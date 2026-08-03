@@ -27,13 +27,25 @@ import 'aes_core.dart';
 /// final texto = utf8.decode(gcm.decrypt(payload));
 /// ```
 class AesGcm {
+  /// Tamanho obrigatório do nonce GCM, em bytes.
   static const int nonceLength = 12;
+
+  /// Tamanho da tag de autenticação produzida pelo GCM, em bytes.
   static const int tagLength = 16;
 
+  /// Chave AES de 16 bytes (AES-128) ou 32 bytes (AES-256).
   final Uint8List key;
+
+  /// Nonce de [nonceLength] bytes, que deve ser único para cada mensagem.
   final Uint8List nonce;
+
+  /// Dados adicionais autenticados, preservados em texto claro.
   final Uint8List aad;
 
+  /// Cria uma instância de AES-GCM com [key], [nonce] e [aad].
+  ///
+  /// Os tamanhos são validados ao chamar [encrypt] ou [decrypt]. Reutilizar
+  /// um nonce com a mesma chave compromete a segurança do GCM.
   const AesGcm({
     required this.key,
     required this.nonce,

@@ -26,11 +26,19 @@ import 'aes_core.dart';
 /// final texto  = utf8.decode(cbc.decrypt(payload));
 /// ```
 class AesCbc {
+  /// Tamanho obrigatório do vetor de inicialização, em bytes.
   static const int ivLength = 16;
 
+  /// Chave AES de 16 bytes (AES-128) ou 32 bytes (AES-256).
   final Uint8List key;
+
+  /// Vetor de inicialização de [ivLength] bytes.
   final Uint8List iv;
 
+  /// Cria uma instância de AES-CBC com a [key] e o [iv] informados.
+  ///
+  /// Os tamanhos são validados ao chamar [encrypt] ou [decrypt]. Cada mensagem
+  /// deve usar um IV novo e imprevisível para evitar a repetição de blocos.
   const AesCbc({required this.key, required this.iv});
 
   /// Cifra [plaintext] com PKCS#7 e retorna [EncryptedPayload].

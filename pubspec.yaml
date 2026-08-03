@@ -1,6 +1,6 @@
 name: all_crypto
 description: Authenticated encryption in pure Dart with versioned envelopes that never serialize keys, ChaCha20-Poly1305, AES-GCM, SHA-256, and HMAC.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/CriandoGames/all_crypto
 repository: https://github.com/CriandoGames/all_crypto
 issue_tracker: https://github.com/CriandoGames/all_crypto/issues

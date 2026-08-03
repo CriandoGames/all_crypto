@@ -33,13 +33,20 @@ import 'aes_core.dart';
 /// final original = ctr.decrypt(payload);
 /// ```
 class AesCtr {
+  /// Tamanho obrigatório do bloco de contador inicial, em bytes.
   static const int counterBlockLength = 16;
 
+  /// Chave AES de 16 bytes (AES-128) ou 32 bytes (AES-256).
   final Uint8List key;
 
   /// Bloco de contador inicial — 16 bytes interpretados como uint128 big-endian.
   final Uint8List initialCounterBlock;
 
+  /// Cria uma instância de AES-CTR com a [key] e o
+  /// [initialCounterBlock] informados.
+  ///
+  /// Os tamanhos são validados ao chamar [encrypt] ou [decrypt]. Nunca
+  /// reutilize o mesmo bloco de contador com a mesma chave.
   const AesCtr({
     required this.key,
     required this.initialCounterBlock,
